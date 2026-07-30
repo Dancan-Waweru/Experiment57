@@ -1,11 +1,14 @@
 import dbPool from '../config/db.js';
+import RouterOS from "../services/routeros/index.js";
+import { getConnection } from "../services/routeros/connection.js";
+
 
 /**
  * Validates credentials against the MySQL database.
  * Sends a JSON status response back to the client.
  */
 export const validateLogin = async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, clientIp, clientMac } = req.body;
 
     try {
         // Run a parameterized query to find an active user matching both criteria
@@ -17,6 +20,21 @@ export const validateLogin = async (req, res) => {
         // Check if a matching record was found in the database matrix
         if (rows.length > 0) {
             console.log(`🟢 VALIDATION SUCCESS: User [ ${username} ] authorized.`);
+
+             await RouterOS.hotspot.login({
+
+                    ipAddress: clientIp,
+
+                    macAddress: clientMac,
+
+                    username: "admin",
+
+                    password: "coffee"
+
+                });
+
+                
+
             
             // Send back successful authorization status along with user profile metadata
             return res.status(200).json({

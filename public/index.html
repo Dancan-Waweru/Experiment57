@@ -4,31 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Experiment57 - Core Interface</title>
-    <!-- Link to your external stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
     <div class="terminal-frame">
-        <!-- Figma Asset Banner Header -->
         <div class="terminal-banner">
             <h1>Experiment57</h1>
         </div>
 
-        <!-- Wrapper to dynamically inject the password input line later -->
-        <div id="terminal-form-body">
-            <!-- Username Data Input Line -->
-            <div class="input-container" id="username-container">
-                <label for="username-field">enter your name</label>
-                <div class="interactive-line">
-                    <input type="text" id="username-field" name="username" autocomplete="off" autofocus required>
-                    <span class="terminal-cursor"></span>
+        <!-- Wrap everything inside a formal form tag container -->
+        <form id="captive-portal-form">
+            
+            <!-- This container holds our dynamically injected hidden inputs from MikroTik -->
+            <div id="hidden-inputs-container"></div>
+
+            <!-- Dynamic UI content insertion container -->
+            <div id="terminal-form-body">
+                <!-- Username Data Input Line -->
+                <div class="input-container" id="username-container">
+                    <label for="username-field">enter your name</label>
+                    <div class="interactive-line">
+                        <input type="text" id="username-field" name="username" autocomplete="off" autofocus>
+                        <span class="terminal-cursor"></span>
+                    </div>
                 </div>
             </div>
-        </div>
+
+        </form>
     </div>
 
-    <!-- Link to your external modular script -->
     <script src="js/login.js"></script>
 </body>
 </html>

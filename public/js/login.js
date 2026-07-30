@@ -1,35 +1,53 @@
 // Global DOM anchors
 const usernameInput = document.getElementById('username-field');
 const formBody = document.getElementById('terminal-form-body');
+const hiddenContainer = document.getElementById('hidden-inputs-container');
+
+/**
+ * Parses parameters out of the incoming URL stream and writes hidden inputs into the DOM tree.
+ */
+function injectMikrotikParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Define the specific tracking keys sent by your gateway template
+    const parameters = ['ip', 'mac', 'linkLogin', 'linkOrig'];
+
+    parameters.forEach(param => {
+        const val = urlParams.get(param);
+        if (val) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.id = `router-${param}`;
+            hiddenInput.name = param;
+            hiddenInput.value = val;
+            hiddenContainer.appendChild(hiddenInput);
+            console.log(`Captured MikroTik tracking vector -> ${param}: ${val}`);
+        }
+    });
+}
 
 /**
  * Simulates a system verification pipeline with a retro terminal progress gauge.
  */
 function triggerTerminalBoot() {
-    // Prevent duplicate progress bars from spinning up if user mashes Enter
     if (document.getElementById('status-panel')) return;
 
-    // 1. Build the status container box
     const statusPanel = document.createElement('div');
     statusPanel.id = 'status-panel';
     statusPanel.className = 'status-neutral';
 
-    // 2. Build the dynamic log text element
     const statusText = document.createElement('p');
     statusText.id = 'status-text';
     statusText.textContent = 'initializing validation sequence...';
 
-    // 3. Build the raw progress meter block
     const statusBar = document.createElement('p');
     statusBar.id = 'status-bar';
-    statusBar.textContent = '[....................]'; // 20 units wide canvas
+    statusBar.textContent = '[....................]';
 
-    // Assemble and render directly below your interactive forms
     statusPanel.appendChild(statusText);
     statusPanel.appendChild(statusBar);
     formBody.appendChild(statusPanel);
 
-    // 4. Define the array of execution sequence checkpoints
     const bootStages = [
         { text: 'submitting credentials...', bar: '[####................]' },
         { text: 'authenticating credentials...', bar: '[########............]' },
@@ -40,8 +58,6 @@ function triggerTerminalBoot() {
 
     let currentStage = 0;
 
-
-    // 5. Fire up the ticker interval to step through the array frames smoothly
     const bootTimer = setInterval(async () => {
         if (currentStage < bootStages.length) {
             statusText.textContent = bootStages[currentStage].text;
@@ -50,53 +66,49 @@ function triggerTerminalBoot() {
         } else {
             clearInterval(bootTimer);
             
-            // Gather values directly from your interface elements
+            // Gather structural interface typing data
             const usernameValue = document.getElementById('username-field').value;
             const passwordValue = document.getElementById('password-field').value;
 
-            // ... rest of your existing progress ticker setup remains identical above ...
-            
-            // Dispatch the payload safely over to your backend server architecture
+            // Gather the hidden tracking fields if they exist
+            const ipValue = document.getElementById('router-ip')?.value || '';
+            const macValue = document.getElementById('router-mac')?.value || '';
+            const linkLoginValue = document.getElementById('router-linkLogin')?.value || '';
+            const linkOrigValue = document.getElementById('router-linkOrig')?.value || '';
+
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: usernameValue, password: passwordValue })
+                    body: JSON.stringify({ 
+                        username: usernameValue, 
+                        password: passwordValue,
+                        clientIp: ipValue,       // Here is the real device IP from the router
+                        clientMac: macValue,     // Here is the device hardware MAC address
+                        linkLogin: linkLoginValue,
+                        linkOrig: linkOrigValue
+                    })
                 });
 
                 const serverResult = await response.json();
 
-               if (response.ok && serverResult.success) {
-                    console.log("Validation approved by database core.");
-                    
-                    // Encode strings safely to pass them cleanly as standard URL URL parameters
+                if (response.ok && serverResult.success) {
                     const queryParams = new URLSearchParams({
                         username: serverResult.username,
                         bundle: serverResult.bundle
                     }).toString();
 
-                    // Trigger redirection directly to the target splash page alongside parameters
                     setTimeout(() => {
                         window.location.href = `/splash.html?${queryParams}`;
                     }, 600);
-                }
-                else {
-                    // Failure Path (Desktop-15)
-                    console.warn("Validation denied by database core.");
-                    
-                    // 1. Shift the main layout wrapper tracking state to amber
+                } else {
                     statusPanel.className = 'status-error';
                     formBody.classList.add('status-error-active');
-
-                    // 2. Output the error warning directly to the terminal screen
                     statusText.innerHTML = `ACCESS DENIED: ${serverResult.message.toUpperCase()}<br>RETRY VALIDATION SEQUENCE...`;
-                    
-                    // 3. Transform progress gauge indicators into error nodes
                     statusBar.textContent = '[*******CRITICAL_FAULT*******]';
                 }
 
             } catch (error) {
-                // Catching hardware disconnects or server down events
                 statusPanel.className = 'status-error';
                 statusText.textContent = 'CRITICAL CORRUPT SYSTEM TIMEOUT';
                 statusBar.textContent = '[xxxxxxxxxxxxxxxxxxxx]';
@@ -104,7 +116,6 @@ function triggerTerminalBoot() {
         }
     }, 800); 
 }
-
 
 /**
  * Constructs the password markup flow and attaches its standalone listener.
@@ -140,23 +151,22 @@ function initializePasswordPrompt() {
     formBody.appendChild(passwordContainer);
     passwordInput.focus();
 
-    // Secondary Event Hook: Listens for password submittal execution
     passwordInput.addEventListener('keydown', function(passEvent) {
         if (passEvent.key === 'Enter') {
             passEvent.preventDefault();
-            console.log("password has been provided");
-            
-            // Execute our self-contained fake progress engine
             triggerTerminalBoot();
         }
     });
 }
 
-// --- PRIMARY INTERACTION HOOK ---
+// --- INITIAL ENGINE EXECUTION EVENT HOOKS ---
+
+// Automatically extract the router configuration keys the split second the page mounts
+document.addEventListener('DOMContentLoaded', injectMikrotikParameters);
+
 usernameInput.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         event.preventDefault();
-        console.log("username added first");
         initializePasswordPrompt();
     }
 });

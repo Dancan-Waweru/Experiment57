@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import dbPool from './config/db.js';
 import authRouter from './routes/authRoutes.js'; // Import your new router file
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -19,10 +20,13 @@ server.use(express.static(path.join(__dirname, 'public')));
 server.use('/api', authRouter);
 
 server.get('/', (req, res) => {
+
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0',() => {
     console.log(`Experiment57 staging environment live at: http://localhost:${PORT}`);
 });
