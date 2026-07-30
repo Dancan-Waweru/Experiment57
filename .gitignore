@@ -1,0 +1,13 @@
+# Dependency directories (never upload this, it can be re-installed using npm install)
+node_modules/
+
+# Environment configurations containing master database secrets
+.env
+
+# Operating system cache files
+Thumbs.db
+.DS_Store
+
+# Local log files generated during runtime crashes
+*.log
+npm-debug.log*

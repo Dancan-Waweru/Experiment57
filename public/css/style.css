@@ -1,0 +1,181 @@
+/* ==========================================================================
+   1. LOCAL CORE FONT INITIALIZATION
+   ========================================================================== */
+@font-face {
+    font-family: 'Share Tech Mono Local';
+    src: url('../fonts/ShareTechMono-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono Local';
+    src: url('../fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* ==========================================================================
+   2. TERMINAL LAYOUT STRUCTURING
+   ========================================================================== */
+:root {
+    --canvas-black: #0D0E10;
+    --neon-green: #00FF66;
+    --subtle-gray: #E5E7EB;
+}
+
+body {
+    background-color: var(--canvas-black);
+    color: var(--subtle-gray);
+    font-family: 'Share Tech Mono Local', monospace;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 4vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.terminal-frame {
+    width: 100%;
+    max-width: 80vw;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   3. FIGMA BANNER & INTERACTION FIELDS
+   ========================================================================== */
+.terminal-banner {
+    height: 28vh;
+    width: 100%;
+    padding: 40px;
+    margin-bottom: 40px;
+    /* Replace with your local texture block once saved under public/images */
+    background: url('../images/static-texture.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.terminal-banner h1 {
+    margin: 0;
+    font-size: 7.4rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    color: #FFFFFF;
+}
+
+.input-container {
+    margin-bottom: 24px;
+}
+
+label {
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.interactive-line {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+input {
+    background: transparent;
+    border: none;
+    color: var(--neon-green);
+    font-family: 'JetBrains Mono Local', monospace;
+    font-size: 1.2rem;
+    width: 100%;
+    outline: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ==========================================================================
+   4. ANIMATED COMMAND LINE CURSOR BLOCK
+   ========================================================================== */
+.terminal-cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background-color: var(--neon-green);
+    animation: blink-effect 0.8s infinite steps(2);
+    position: absolute;
+    /* Adjusts position based on text width automatically */
+    left: -10vw; 
+    pointer-events: none;
+    display: none; /* Kept native to keep line completely clean */
+}
+
+/* If you want the block cursor fixed at the end of the input field */
+input[type="text"]:focus + .terminal-cursor {
+    display: inline-block;
+    position: relative;
+    margin-left: 2px;
+}
+
+@keyframes blink-effect {
+    50% { opacity: 0; }
+}
+
+/* Progress Log Presentation Container */
+#status-panel {
+    margin-top: 30px;
+    font-family: 'JetBrains Mono Local', monospace;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.status-neutral {
+    color: var(--neon-green);
+}
+
+#status-text, #status-bar {
+    margin: 4px 0;
+    letter-spacing: 0.5px;
+}
+
+.status-error {
+    color: #FF9900 !important;
+}
+
+/* Force active blinking block cursors to shift to amber tint during faults */
+.status-error-active .terminal-cursor {
+    background-color: #00FF66 !important;
+}
+
+/* Target all text inputs inside the container frame to shift colors dynamically */
+.status-error-active input {
+    color: #00FF66 !important;
+}
+
+.readout-manifest {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Uniform spacing between variable blocks */
+}
+
+.readout-line {
+    font-family: 'JetBrains Mono Local', monospace;
+    font-size: 1.2rem;
+    color: var(--subtle-gray);
+    display: flex;
+    align-items: center;
+}
+
+/* Aligns titles in a sharp, vertical line like a system dashboard grid */
+.manifest-label {
+    width: 220px; /* Fixed anchor grid width */
+    color: var(--subtle-gray);
+    flex-shrink: 0;
+}
+
+/* Optional styling to highlight real-time variable strings explicitly */
+#display-user, #display-bundle, #display-timer, #display-device {
+    color: var(--neon-green);
+}
